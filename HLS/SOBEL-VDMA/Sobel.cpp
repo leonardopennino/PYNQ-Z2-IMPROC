@@ -328,7 +328,7 @@ void nms(RGB_IMAGE32 &img_in, RGB_IMAGE &image_out) {
 					if(g >= side_1 && g>=side_2) {
 	//					valout =  (unsigned char)(hls::round(g/max*255));
 						/*valout is rescaled*/
-						double d = (hls::round((g/MAX)*255));
+						double d = (hls::round((g/MAXABS)*255));
 						valout = (unsigned char) d;
 					} else {
 						valout = (unsigned char) 0;
