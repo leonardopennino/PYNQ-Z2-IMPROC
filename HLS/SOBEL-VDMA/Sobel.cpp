@@ -2,7 +2,7 @@
 #define IMG_HEIGHT 720
 #define IMG_WIDTH 1280
 #define PI 3,1452
-#define MAXABS 2040
+#define MAXABS 2040 //rescaling value in order to fit gradient in 8 bit
 #define MAX 1445
 #include <ap_axi_sdata.h>
 typedef hls::Mat<720,1280, HLS_32S> RGB_IMAGE32;
@@ -18,52 +18,9 @@ coeff_type const1 = 0.114;
 coeff_type const2 = 0.587;
 coeff_type const3 = 0.2989;
 short add(short a, short b);
-//void RGB2Gray(
-//		RGB_IMAGE& img_in,
-//		RGB_IMAGE& img_out
-//        ) {
-//
-//	RGB_PIX pin;
-//	RGB_PIX pout;
-//	char gray;
-//
-//L_row: for(int row = 0; row < 720; row++) {
-//#pragma HLS unroll factor=2
-//	L_col: for(int col = 0; col < 1280; col++) {
-//#pragma HLS loop_flatten off
-//#pragma HLS unroll factor=2
-//           img_in >> pin;
-//		   gray =  const1 * pin.val[0] + const2 * pin.val[1] + const3 * pin.val[2];
-//		   pout.val[0] = gray;
-//		   pout.val[1] = gray;
-//		   pout.val[2] = gray;
-//           img_out << pout;
-//        }
-//    }
-//}
 
-/*
- * Sobel function
- *
- * directoin:
- * 	1: sobel X
- *	0: sobel Y
- */
-/*void sobel(
-		RGB_IMAGE& img_in,
-		RGB_IMAGE& img_out,
-		char direction
-        ) {
 
-	if(direction==1)
-		hls::Sobel<1,0,3>(img_in, img_out);
-	else if(direction == 0)
-		hls::Sobel<0,1,3>(img_in, img_out);
-	else
-		hls::Sobel<0,1,3>(img_in, img_out);
-} */
-
-/*Gaussian blur 3x3*/
+/*Gaussian blur 3x3, with grayscale included*/
 void blur(RGB_IMAGE &img_in, RGB_IMAGE &image_out) {
 		RGB_PIX pin;
 		RGB_PIX pout;
@@ -159,11 +116,6 @@ void sobel(RGB_IMAGE &img_in, RGB_IMAGE32 &image_out) {
 #pragma HLS loop_flatten
 				img_in >> pin;
 				lineBuff.shift_up(col);
-//				char gray1 = const1 * pin.val[0];
-//				char gray2 = const2 * pin.val[1];
-//				char grayPart = gray1 + gray2;
-//				char gray3 = const3 * pin.val[2];
-//				char grayPart2 = grayPart + gray3;
 				lineBuff.insert_top(pin.val[0],col);
 			}
 
@@ -220,6 +172,8 @@ short add(short a, short b){
 #pragma HLS inline
 	return a+b;
 }
+/*non maximum suppression function. The approximations used are: calculation of the module as sum of absolute value of components
+*and definition of gradient direction depending on tangent range*/
 
 void nms(RGB_IMAGE32 &img_in, RGB_IMAGE &image_out) {
 #pragma HLS inline
@@ -273,7 +227,6 @@ void nms(RGB_IMAGE32 &img_in, RGB_IMAGE &image_out) {
 					g_y1 = (unsigned int) ((valin >> 16) & 0x1FFFF);
 					g_x1 = (unsigned int) (valin & 0x1FFFF);
 
-					//g =hls::sqrt((float)(g_x1*g_x1 + g_y1*g_y1));
 					g = hls::abs((float)g_x1) + hls::abs((float)g_y1);
 	/*find the tangent, in the case of tan=inf, set to "high" value*/
 					if (g_x1 == 0) {
@@ -281,25 +234,10 @@ void nms(RGB_IMAGE32 &img_in, RGB_IMAGE &image_out) {
 					} else {
 						tan = g_y1/g_x1;
 					}
-					//angle =hls::atan2((float)g_y1,(float)g_x1) * 180 / PI;
-
-					//if (angle < 0) angle+=180;
+				
 
 
 	/*check neighbouring pixels based on angle*/
-//					if (angle >= 22.5 && angle < 67.5) { //45
-//						valin1 = window.getval(0,2);
-//						valin2 = window.getval(2,0);
-//					} else if (angle >= 67.5 && angle <112.5) { //90
-//						valin1 = window.getval(0,1);
-//						valin2 = window.getval(2,1);
-//					} else if (angle >= 111.5 && angle < 157.5) { //135
-//						valin1 = window.getval(0,0);
-//						valin2 = window.getval(2,2);
-//					} else { //0 || 180
-//						valin1 = window.getval(1,0);
-//						valin2 = window.getval(1,2);
-//					}
 					if (tan == 90) {
 						valin1 = window.getval(0,1);
 						valin2 = window.getval(2,1);
@@ -327,8 +265,8 @@ void nms(RGB_IMAGE32 &img_in, RGB_IMAGE &image_out) {
 					side_2 = hls::abs((float)g_x2) + hls::abs((float)g_y2);
 	/*if g< side gradients, suppress, else return rescaled gradient*/
 					if(g >= side_1 && g>=side_2) {
-	//					valout =  (unsigned char)(hls::round(g/max*255));
-						/*valout is rescaled*/
+	
+	/*valout is rescaled*/
 						double d = (hls::round((g/MAXABS)*255));
 						valout = (unsigned char) d;
 					} else {
