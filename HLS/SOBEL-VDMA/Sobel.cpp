@@ -63,6 +63,7 @@ short add(short a, short b);
 		hls::Sobel<0,1,3>(img_in, img_out);
 } */
 
+/*Gaussian blur 3x3*/
 void blur(RGB_IMAGE &img_in, RGB_IMAGE &image_out) {
 		RGB_PIX pin;
 		RGB_PIX pout;
@@ -274,7 +275,7 @@ void nms(RGB_IMAGE32 &img_in, RGB_IMAGE &image_out) {
 
 					//g =hls::sqrt((float)(g_x1*g_x1 + g_y1*g_y1));
 					g = hls::abs((float)g_x1) + hls::abs((float)g_y1);
-	/*find the angle, rotate if negative*/
+	/*find the tangent, in the case of tan=inf, set to "high" value*/
 					if (g_x1 == 0) {
 						tan = 90;
 					} else {
