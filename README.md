@@ -10,7 +10,7 @@ The  canny  algorithm  is  an  image  processing  algorithm  for  edge  detectio
 * Gaussian blurring:  an initial gaussian filter is convolved with the image,in order to reduce noise for the future gradient detection;
 * Sobel  gradient  extraction:   the  image  is  convolved  with  x  and  y  Sobelfilters,  in  order  to  compute,  for  each  pixel,  angle  and  magnitude  of  thegradient vector;
 * Non maximum suppression: the gradient image is further filtered to ”thin”the lines, suppressing each gradient which is not a local maximum amongthe neighbours in its direction;
-*Hysteresis: the final step of the algorithm is to set two thresholds, low andhigh,  suppress any pixel below the ”low” threshold,  and keep any pixelabove  the  ”high”  threshold.   Pixel  in  the  between  of  the  thresholds  arekept only if neighbouring ”high” pixels.
+* Hysteresis: the final step of the algorithm is to set two thresholds, low andhigh,  suppress any pixel below the ”low” threshold,  and keep any pixelabove  the  ”high”  threshold.   Pixel  in  the  between  of  the  thresholds  arekept only if neighbouring ”high” pixels.
 
 Due to the different kind of resources available in the dma and vdma imple-mentation, not all function have been implemented for the project, specifically,the vdma implementation does not use the hysteresis, and the dma implementation uses built-in grayscale and blur.
 
