@@ -2,7 +2,8 @@
 IMAGE PROCESSING ON XILINX PYNQ Z2 (CANNY, SOBEL)
 
 ## Introduction:
-The aim of the project was implementing the Canny algorithm for image pro-cessing on the PYNQ-Z2 board.  The development tools used were Vivado HLSfor the ip modules creation and Vivado Design for the overlay design.
+We are Giacomo Zamprogno, Leonardo Penninno and Vincenzo De Marco, a team of student from Politecnico of Turin that took part on a computer vision project during our course in Computer Architecture.
+The aim of the project was implementing the Canny algorithm for image processing on the PYNQ-Z2 board.  The development tools used were Vivado HLSfor the ip modules creation and Vivado Design for the overlay design.
 
 ## The algorithm:
 The  canny  algorithm  is  an  image  processing  algorithm  for  edge  detection  inimages, and its description can be split into five phases:
